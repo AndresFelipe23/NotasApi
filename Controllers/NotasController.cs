@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NotasApi.DTOs.Etiquetas;
 using NotasApi.DTOs.Notas;
 using NotasApi.Helpers;
 using NotasApi.Repositories;
@@ -12,24 +13,43 @@ namespace NotasApi.Controllers;
 public class NotasController : ControllerBase
 {
     private readonly INotaRepository _notaRepository;
+    private readonly IEtiquetaRepository _etiquetaRepository;
 
-    public NotasController(INotaRepository notaRepository)
+    public NotasController(INotaRepository notaRepository, IEtiquetaRepository etiquetaRepository)
     {
         _notaRepository = notaRepository;
+        _etiquetaRepository = etiquetaRepository;
     }
 
     [HttpGet]
-    public async Task<ActionResult> ObtenerNotas([FromQuery] Guid? carpetaId = null)
+    public async Task<ActionResult> ObtenerNotas([FromQuery] Guid? carpetaId = null, [FromQuery] bool todas = false)
     {
         try
         {
             var usuarioId = User.GetUsuarioId();
-            var notas = await _notaRepository.ObtenerResumenPorCarpetaAsync(usuarioId, carpetaId);
+            var notas = todas
+                ? await _notaRepository.ObtenerResumenTodasAsync(usuarioId)
+                : await _notaRepository.ObtenerResumenPorCarpetaAsync(usuarioId, carpetaId);
             return Ok(notas);
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Error al obtener las notas", error = ex.Message });
+        }
+    }
+
+    [HttpGet("archivadas")]
+    public async Task<ActionResult> ObtenerArchivadas()
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            var notas = await _notaRepository.ObtenerArchivadasAsync(usuarioId);
+            return Ok(notas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener las notas archivadas", error = ex.Message });
         }
     }
 
@@ -44,7 +64,24 @@ public class NotasController : ControllerBase
             if (nota == null)
                 return NotFound(new { message = "Nota no encontrada" });
 
-            return Ok(nota);
+            var etiquetas = await _etiquetaRepository.ObtenerPorNotaAsync(id);
+            return Ok(new
+            {
+                nota.Id,
+                nota.UsuarioId,
+                nota.CarpetaId,
+                nota.Titulo,
+                nota.Resumen,
+                nota.Icono,
+                nota.ImagenPortadaUrl,
+                nota.ContenidoBloques,
+                nota.EsFavorita,
+                nota.EsArchivada,
+                nota.EsPublica,
+                nota.FechaCreacion,
+                nota.FechaActualizacion,
+                Etiquetas = etiquetas
+            });
         }
         catch (Exception ex)
         {
@@ -141,6 +178,55 @@ public class NotasController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Error al archivar la nota", error = ex.Message });
+        }
+    }
+
+    [HttpPut("{id}/recuperar")]
+    public async Task<ActionResult> RecuperarNota(Guid id)
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            await _notaRepository.RecuperarAsync(id, usuarioId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al recuperar la nota", error = ex.Message });
+        }
+    }
+
+    [HttpPut("{id}/etiquetas")]
+    public async Task<ActionResult> AsignarEtiquetas(Guid id, [FromBody] AsignarEtiquetasRequest request)
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            var nota = await _notaRepository.ObtenerPorIdAsync(id, usuarioId);
+            if (nota == null)
+                return NotFound(new { message = "Nota no encontrada" });
+
+            await _etiquetaRepository.AsignarANotaAsync(id, request.EtiquetaIds ?? new List<Guid>());
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al asignar etiquetas", error = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> EliminarNota(Guid id)
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            await _notaRepository.EliminarAsync(id, usuarioId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al eliminar la nota", error = ex.Message });
         }
     }
 }

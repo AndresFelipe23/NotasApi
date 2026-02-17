@@ -15,8 +15,9 @@ BEGIN
     SET NOCOUNT ON;
     SET @NuevoId = NEWID();
 
-    INSERT INTO NotasRapidas (Id, UsuarioId, Contenido, ColorHex)
-    VALUES (@NuevoId, @UsuarioId, @Contenido, @ColorHex);
+    -- Guardamos fechas ajustadas a zona horaria (UTC-5)
+    INSERT INTO NotasRapidas (Id, UsuarioId, Contenido, ColorHex, FechaCreacion, FechaActualizacion)
+    VALUES (@NuevoId, @UsuarioId, @Contenido, @ColorHex, DATEADD(HOUR, -5, GETUTCDATE()), DATEADD(HOUR, -5, GETUTCDATE()));
 END;
 GO
 
@@ -37,7 +38,7 @@ BEGIN
     SET 
         Contenido = @Contenido,
         ColorHex = @ColorHex,
-        FechaActualizacion = GETUTCDATE()
+        FechaActualizacion = DATEADD(HOUR, -5, GETUTCDATE())
     WHERE Id = @Id AND UsuarioId = @UsuarioId;
 END;
 GO
@@ -80,8 +81,51 @@ BEGIN
     UPDATE NotasRapidas
     SET 
         EsArchivada = 1,
-        FechaActualizacion = GETUTCDATE()
+        FechaActualizacion = DATEADD(HOUR, -5, GETUTCDATE())
     WHERE Id = @Id AND UsuarioId = @UsuarioId;
+END;
+GO
+
+-- ============================================================================
+-- 5. OBTENER NOTAS RÁPIDAS ARCHIVADAS
+-- Para el panel lateral de historial / notas guardadas.
+-- ============================================================================
+CREATE OR ALTER PROCEDURE usp_NotasRapidas_ObtenerArchivadas
+    @UsuarioId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        Id,
+        UsuarioId,
+        Contenido,
+        ColorHex,
+        EsArchivada,
+        FechaCreacion,
+        FechaActualizacion
+    FROM NotasRapidas
+    WHERE UsuarioId = @UsuarioId AND EsArchivada = 1
+    ORDER BY FechaActualizacion DESC;
+END;
+GO
+
+-- ============================================================================
+-- 6. RECUPERAR NOTA RÁPIDA ARCHIVADA
+-- Revierte EsArchivada a 0 para devolverla al listado principal.
+-- ============================================================================
+CREATE OR ALTER PROCEDURE usp_NotasRapidas_Recuperar
+    @Id UNIQUEIDENTIFIER,
+    @UsuarioId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE NotasRapidas
+    SET 
+        EsArchivada = 0,
+        FechaActualizacion = DATEADD(HOUR, -5, GETUTCDATE())
+    WHERE Id = @Id AND UsuarioId = @UsuarioId AND EsArchivada = 1;
 END;
 GO
 
@@ -133,7 +177,7 @@ BEGIN
 
         -- 3. Archivamos la Nota Rápida para que ya no salga en el listado de Post-its
         UPDATE NotasRapidas
-        SET EsArchivada = 1, FechaActualizacion = GETUTCDATE()
+        SET EsArchivada = 1, FechaActualizacion = DATEADD(HOUR, -5, GETUTCDATE())
         WHERE Id = @NotaRapidaId AND UsuarioId = @UsuarioId;
 
         COMMIT TRANSACTION;

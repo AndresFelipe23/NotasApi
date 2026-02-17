@@ -9,5 +9,6 @@ public interface ITareaRepository
     Task ActualizarAsync(Guid id, Guid usuarioId, string descripcion, int prioridad, DateTimeOffset? fechaVencimiento = null);
     Task AlternarEstadoAsync(Guid id, Guid usuarioId);
     Task<IEnumerable<Tarea>> ObtenerPendientesAsync(Guid usuarioId);
+    Task<IEnumerable<Tarea>> ObtenerCompletadasAsync(Guid usuarioId);
     Task EliminarAsync(Guid id, Guid usuarioId);
 }

@@ -33,6 +33,21 @@ public class TareasController : ControllerBase
         }
     }
 
+    [HttpGet("completadas")]
+    public async Task<ActionResult> ObtenerCompletadas()
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            var tareas = await _tareaRepository.ObtenerCompletadasAsync(usuarioId);
+            return Ok(tareas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener las tareas completadas", error = ex.Message });
+        }
+    }
+
     [HttpPost]
     public async Task<ActionResult> CrearTarea([FromBody] CrearTareaRequest request)
     {

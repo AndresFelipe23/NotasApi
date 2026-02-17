@@ -67,6 +67,15 @@ public class NotaRepository : INotaRepository
             commandType: System.Data.CommandType.StoredProcedure);
     }
 
+    public async Task<IEnumerable<NotaResumen>> ObtenerResumenTodasAsync(Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        return await connection.QueryAsync<NotaResumen>(
+            "usp_Notas_ObtenerResumenTodas",
+            new { UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
     public async Task MoverACarpetaAsync(Guid id, Guid usuarioId, Guid? nuevaCarpetaId)
     {
         using var connection = _dbFactory.CreateConnection();
@@ -90,6 +99,33 @@ public class NotaRepository : INotaRepository
         using var connection = _dbFactory.CreateConnection();
         await connection.ExecuteAsync(
             "usp_Notas_Archivar",
+            new { Id = id, UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
+    public async Task<IEnumerable<NotaResumen>> ObtenerArchivadasAsync(Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        return await connection.QueryAsync<NotaResumen>(
+            "usp_Notas_ObtenerArchivadas",
+            new { UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
+    public async Task RecuperarAsync(Guid id, Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        await connection.ExecuteAsync(
+            "usp_Notas_Recuperar",
+            new { Id = id, UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
+    public async Task EliminarAsync(Guid id, Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        await connection.ExecuteAsync(
+            "usp_Notas_Eliminar",
             new { Id = id, UsuarioId = usuarioId },
             commandType: System.Data.CommandType.StoredProcedure);
     }

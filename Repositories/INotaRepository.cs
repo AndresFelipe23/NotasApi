@@ -10,7 +10,11 @@ public interface INotaRepository
         string? icono = null, string? imagenPortadaUrl = null, string? contenidoBloques = null);
     Task<Nota?> ObtenerPorIdAsync(Guid id, Guid usuarioId);
     Task<IEnumerable<NotaResumen>> ObtenerResumenPorCarpetaAsync(Guid usuarioId, Guid? carpetaId = null);
+    Task<IEnumerable<NotaResumen>> ObtenerResumenTodasAsync(Guid usuarioId);
     Task MoverACarpetaAsync(Guid id, Guid usuarioId, Guid? nuevaCarpetaId);
     Task AlternarFavoritoAsync(Guid id, Guid usuarioId);
     Task ArchivarAsync(Guid id, Guid usuarioId);
+    Task<IEnumerable<NotaResumen>> ObtenerArchivadasAsync(Guid usuarioId);
+    Task RecuperarAsync(Guid id, Guid usuarioId);
+    Task EliminarAsync(Guid id, Guid usuarioId);
 }

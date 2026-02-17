@@ -48,9 +48,22 @@ public class NotaRapidaRepositoryCacheDecorator : INotaRapidaRepository
         return resultList;
     }
 
+    public async Task<IEnumerable<NotaRapida>> ObtenerArchivadasAsync(Guid usuarioId)
+    {
+        // Por simplicidad no cacheamos archivadas (cambian poco y el volumen es menor)
+        return await _repository.ObtenerArchivadasAsync(usuarioId);
+    }
+
     public async Task ArchivarAsync(Guid id, Guid usuarioId)
     {
         await _repository.ArchivarAsync(id, usuarioId);
+        // Invalidar caché de notas rápidas
+        await _cache.RemoveAsync(CacheKeys.NotasRapidas(usuarioId));
+    }
+
+    public async Task RecuperarAsync(Guid id, Guid usuarioId)
+    {
+        await _repository.RecuperarAsync(id, usuarioId);
         // Invalidar caché de notas rápidas
         await _cache.RemoveAsync(CacheKeys.NotasRapidas(usuarioId));
     }

@@ -44,11 +44,29 @@ public class NotaRapidaRepository : INotaRapidaRepository
             commandType: System.Data.CommandType.StoredProcedure);
     }
 
+    public async Task<IEnumerable<NotaRapida>> ObtenerArchivadasAsync(Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        return await connection.QueryAsync<NotaRapida>(
+            "usp_NotasRapidas_ObtenerArchivadas",
+            new { UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
     public async Task ArchivarAsync(Guid id, Guid usuarioId)
     {
         using var connection = _dbFactory.CreateConnection();
         await connection.ExecuteAsync(
             "usp_NotasRapidas_Archivar",
+            new { Id = id, UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
+    public async Task RecuperarAsync(Guid id, Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        await connection.ExecuteAsync(
+            "usp_NotasRapidas_Recuperar",
             new { Id = id, UsuarioId = usuarioId },
             commandType: System.Data.CommandType.StoredProcedure);
     }

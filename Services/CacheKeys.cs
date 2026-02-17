@@ -11,6 +11,9 @@ public static class CacheKeys
     // Dashboard - Tareas pendientes
     public static string TareasPendientes(Guid usuarioId) => $"tareas:pendientes:{usuarioId}";
     
+    // Tareas completadas
+    public static string TareasCompletadas(Guid usuarioId) => $"tareas:completadas:{usuarioId}";
+    
     // Invalidación de caché de carpetas (cuando se crea/elimina)
     public static string InvalidateCarpetas(Guid usuarioId) => $"carpetas:*:{usuarioId}";
     

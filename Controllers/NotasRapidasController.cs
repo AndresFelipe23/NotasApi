@@ -70,6 +70,21 @@ public class NotasRapidasController : ControllerBase
         }
     }
 
+    [HttpGet("archivadas")]
+    public async Task<ActionResult> ObtenerArchivadas()
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            var notasArchivadas = await _notaRapidaRepository.ObtenerArchivadasAsync(usuarioId);
+            return Ok(notasArchivadas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener las notas rápidas archivadas", error = ex.Message });
+        }
+    }
+
     [HttpPut("{id}")]
     public async Task<ActionResult> ActualizarNotaRapida(Guid id, [FromBody] ActualizarNotaRapidaRequest request)
     {
@@ -97,6 +112,21 @@ public class NotasRapidasController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Error al archivar la nota rápida", error = ex.Message });
+        }
+    }
+
+    [HttpPut("{id}/recuperar")]
+    public async Task<ActionResult> RecuperarNotaRapida(Guid id)
+    {
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            await _notaRapidaRepository.RecuperarAsync(id, usuarioId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al recuperar la nota rápida", error = ex.Message });
         }
     }
 

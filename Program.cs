@@ -111,7 +111,8 @@ builder.Services.AddScoped<ICarpetaRepository>(sp =>
     return new CarpetaRepositoryCacheDecorator(baseRepo, cache);
 });
 
-builder.Services.AddScoped<INotaRepository, NotaRepository>(); // Sin caché (las notas se leen individualmente)
+builder.Services.AddScoped<INotaRepository, NotaRepository>();
+builder.Services.AddScoped<IEtiquetaRepository, EtiquetaRepository>();
 
 // Notas rápidas sin caché para máxima velocidad (se puede habilitar Redis más adelante)
 builder.Services.AddScoped<INotaRapidaRepository, NotaRapidaRepository>();

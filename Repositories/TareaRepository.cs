@@ -63,6 +63,15 @@ public class TareaRepository : ITareaRepository
             commandType: System.Data.CommandType.StoredProcedure);
     }
 
+    public async Task<IEnumerable<Tarea>> ObtenerCompletadasAsync(Guid usuarioId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        return await connection.QueryAsync<Tarea>(
+            "usp_Tareas_ObtenerCompletadas",
+            new { UsuarioId = usuarioId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
     public async Task EliminarAsync(Guid id, Guid usuarioId)
     {
         using var connection = _dbFactory.CreateConnection();

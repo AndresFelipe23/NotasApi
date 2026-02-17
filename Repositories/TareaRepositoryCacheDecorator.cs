@@ -33,8 +33,8 @@ public class TareaRepositoryCacheDecorator : ITareaRepository
     public async Task AlternarEstadoAsync(Guid id, Guid usuarioId)
     {
         await _repository.AlternarEstadoAsync(id, usuarioId);
-        // Invalidar caché de tareas pendientes (al completar/descompletar)
         await _cache.RemoveAsync(CacheKeys.TareasPendientes(usuarioId));
+        await _cache.RemoveAsync(CacheKeys.TareasCompletadas(usuarioId));
     }
 
     public async Task<IEnumerable<Tarea>> ObtenerPendientesAsync(Guid usuarioId)
@@ -56,10 +56,23 @@ public class TareaRepositoryCacheDecorator : ITareaRepository
         return resultList;
     }
 
+    public async Task<IEnumerable<Tarea>> ObtenerCompletadasAsync(Guid usuarioId)
+    {
+        var cacheKey = CacheKeys.TareasCompletadas(usuarioId);
+        var cached = await _cache.GetAsync<List<Tarea>>(cacheKey);
+        if (cached != null)
+            return cached;
+
+        var result = await _repository.ObtenerCompletadasAsync(usuarioId);
+        var resultList = result.ToList();
+        await _cache.SetAsync(cacheKey, resultList, TimeSpan.FromMinutes(5));
+        return resultList;
+    }
+
     public async Task EliminarAsync(Guid id, Guid usuarioId)
     {
         await _repository.EliminarAsync(id, usuarioId);
-        // Invalidar caché de tareas pendientes
         await _cache.RemoveAsync(CacheKeys.TareasPendientes(usuarioId));
+        await _cache.RemoveAsync(CacheKeys.TareasCompletadas(usuarioId));
     }
 }

@@ -129,7 +129,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(
+                  "http://localhost:5173",
+                  "http://localhost:3000",
+                  "https://anota.click",
+                  "https://www.anota.click",
+                  "http://anota.click",
+                  "http://www.anota.click"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -140,12 +147,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Swagger siempre habilitado para que anotaweb.work muestre la API
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Anota API v1");
+    c.RoutePrefix = string.Empty; // Swagger en la raíz: anotaweb.work/
+});
 
 // Y en el pipeline:
 app.UseCors("AllowFrontend");

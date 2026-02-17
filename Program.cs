@@ -159,6 +159,17 @@ app.UseSwaggerUI(c =>
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 
+// Evitar 502 cuando el navegador sigue un redirect a /index.html
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Equals("/index.html", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Redirect("/", permanent: false);
+        return;
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 

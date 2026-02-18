@@ -70,6 +70,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ITranscripcionService, TranscripcionService>();
+
 // Configurar Redis Cache
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
 if (!string.IsNullOrEmpty(redisConnectionString))

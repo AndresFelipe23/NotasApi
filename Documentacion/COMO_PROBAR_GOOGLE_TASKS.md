@@ -62,6 +62,7 @@ Para probar con front en `localhost:5173` y API en `localhost:5246`:
 | Callback a la API pero luego “error” en la URL | Revisar logs de la API en el callback; suele ser fallo al guardar tokens (BD o configuración). |
 | No se muestran tareas de Google | Comprobar que el usuario tenga listas/tareas en Google Tasks; revisar que la API tenga Google Tasks API habilitada en el proyecto de Google Cloud. |
 | 401 al pedir auth-url o status | El usuario debe estar autenticado (JWT). Probar desde la app ya logueado, no desde Swagger sin token. |
+| **404** en `/api/integrations/google/auth-url` | Ver sección **6. Diagnóstico 404** más abajo. |
 
 ---
 
@@ -77,3 +78,26 @@ Para probar con front en `localhost:5173` y API en `localhost:5246`:
 8. **GET /api/integrations/google/tasks** → lista de tareas de Google.
 
 Con esto puedes validar que la integración y las tablas/procedimientos funcionan antes o junto con las pruebas en la UI.
+
+---
+
+## 6. Diagnóstico 404 (auth-url no encontrado)
+
+Si el frontend recibe **404** al llamar a `GET https://anotaweb.work/api/integrations/google/auth-url`:
+
+1. **Probar endpoint de diagnóstico (sin login)**  
+   Abre en el navegador o con curl:
+   - `https://anotaweb.work/api/integrations/google/ping`  
+   Debe devolver algo como `{"ok":true,"controller":"IntegracionesGoogle"}`.
+   - Si **ping responde 200**: el controlador está bien; el 404 en auth-url puede ser por no enviar el token (debería ser 401) o por algo en el proxy. Comprueba que estés logueado y que el token se envíe en el header `Authorization: Bearer ...`.
+   - Si **ping responde 404**: la ruta `/api/integrations/google/*` no está llegando a la API. Revisa:
+     - **Proxy / Ingress**: que las peticiones a `/api` se reenvíen al backend donde corre la API (Kubernetes Ingress, nginx, etc.).
+     - **Despliegue**: que hayas desplegado la versión actual de NotasApi (que incluye `IntegracionesGoogleController`). Vuelve a hacer `dotnet publish` y a desplegar.
+
+2. **Comprobar Swagger**  
+   - Abre `https://anotaweb.work/` (Swagger).  
+   - Abre `https://anotaweb.work/swagger/v1/swagger.json` y busca `"integrations/google"` o `"auth-url"`.  
+   - Si no aparece, el backend desplegado es una versión antigua: redeploy.
+
+3. **Comprobar que el front llama al mismo dominio**  
+   En producción la base URL debe ser `https://anotaweb.work` (o la que use tu API). Revisa `VITE_API_URL` o el `baseURL` en el cliente (api.ts).

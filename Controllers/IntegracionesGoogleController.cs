@@ -18,6 +18,13 @@ public class IntegracionesGoogleController : ControllerBase
     }
 
     /// <summary>
+    /// Diagnóstico: responde 200 si el controlador está registrado y accesible (sin auth).
+    /// </summary>
+    [HttpGet("ping")]
+    [AllowAnonymous]
+    public ActionResult Ping() => Ok(new { ok = true, controller = "IntegracionesGoogle" });
+
+    /// <summary>
     /// Obtiene la URL para iniciar el flujo OAuth de Google Tasks. Requiere usuario autenticado.
     /// </summary>
     [HttpGet("auth-url")]

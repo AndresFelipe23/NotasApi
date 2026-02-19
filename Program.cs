@@ -120,6 +120,9 @@ builder.Services.AddScoped<IEtiquetaRepository, EtiquetaRepository>();
 // Notas rápidas sin caché para máxima velocidad (se puede habilitar Redis más adelante)
 builder.Services.AddScoped<INotaRapidaRepository, NotaRapidaRepository>();
 
+builder.Services.AddScoped<IIntegracionGoogleRepository, IntegracionGoogleRepository>();
+builder.Services.AddScoped<IGoogleTasksService, GoogleTasksService>();
+
 builder.Services.AddScoped<ITareaRepository>(sp =>
 {
     var baseRepo = sp.GetRequiredService<TareaRepository>();

@@ -69,6 +69,11 @@ public class TareaRepositoryCacheDecorator : ITareaRepository
         return resultList;
     }
 
+    public async Task<IEnumerable<Tarea>> ObtenerPorNotaVinculadaAsync(Guid usuarioId, Guid notaVinculadaId)
+    {
+        return await _repository.ObtenerPorNotaVinculadaAsync(usuarioId, notaVinculadaId);
+    }
+
     public async Task EliminarAsync(Guid id, Guid usuarioId)
     {
         await _repository.EliminarAsync(id, usuarioId);

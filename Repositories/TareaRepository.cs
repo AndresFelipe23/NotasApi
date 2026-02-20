@@ -72,6 +72,15 @@ public class TareaRepository : ITareaRepository
             commandType: System.Data.CommandType.StoredProcedure);
     }
 
+    public async Task<IEnumerable<Tarea>> ObtenerPorNotaVinculadaAsync(Guid usuarioId, Guid notaVinculadaId)
+    {
+        using var connection = _dbFactory.CreateConnection();
+        return await connection.QueryAsync<Tarea>(
+            "usp_Tareas_ObtenerPorNotaVinculada",
+            new { UsuarioId = usuarioId, NotaVinculadaId = notaVinculadaId },
+            commandType: System.Data.CommandType.StoredProcedure);
+    }
+
     public async Task EliminarAsync(Guid id, Guid usuarioId)
     {
         using var connection = _dbFactory.CreateConnection();

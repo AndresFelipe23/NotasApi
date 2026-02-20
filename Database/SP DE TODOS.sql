@@ -88,14 +88,17 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        Id, Descripcion, NotaVinculadaId, Prioridad, Orden, FechaVencimiento,
-        DATEADD(HOUR, -5, FechaCreacion) AS FechaCreacion
-    FROM Tareas
-    WHERE UsuarioId = @UsuarioId AND EstaCompletada = 0
+        t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, t.FechaVencimiento,
+        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
+        n.Titulo AS TituloNotaVinculada
+    FROM Tareas t
+    LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id
+    WHERE t.UsuarioId = @UsuarioId AND t.EstaCompletada = 0
     ORDER BY 
-        Prioridad ASC, -- 1 (Alta) va primero
-        FechaVencimiento ASC, -- Las que vencen m?s pronto (o vencidas) suben
-        Orden ASC; -- Desempata por el orden en que el usuario las arrastr?
+        t.Prioridad ASC,
+        t.FechaVencimiento ASC,
+        t.Orden ASC,
+        t.FechaCreacion ASC;
 END;
 GO
 
@@ -109,13 +112,38 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        Id, Descripcion, NotaVinculadaId, Prioridad, Orden, 
-        EstaCompletada, FechaVencimiento,
-        DATEADD(HOUR, -5, FechaCreacion) AS FechaCreacion,
-        DATEADD(HOUR, -5, FechaCompletada) AS FechaCompletada
-    FROM Tareas
-    WHERE UsuarioId = @UsuarioId AND EstaCompletada = 1
-    ORDER BY FechaCompletada DESC;
+        t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, 
+        t.EstaCompletada, t.FechaVencimiento,
+        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
+        DATEADD(HOUR, -5, t.FechaCompletada) AS FechaCompletada,
+        n.Titulo AS TituloNotaVinculada
+    FROM Tareas t
+    LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id
+    WHERE t.UsuarioId = @UsuarioId AND t.EstaCompletada = 1
+    ORDER BY t.FechaCompletada DESC;
+END;
+GO
+
+-- ============================================================================
+-- 4c. OBTENER TAREAS POR NOTA VINCULADA (Para mostrar en la vista de una nota)
+-- ============================================================================
+CREATE OR ALTER PROCEDURE usp_Tareas_ObtenerPorNotaVinculada
+    @UsuarioId UNIQUEIDENTIFIER,
+    @NotaVinculadaId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, t.EstaCompletada,
+        t.FechaVencimiento,
+        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
+        DATEADD(HOUR, -5, t.FechaCompletada) AS FechaCompletada,
+        n.Titulo AS TituloNotaVinculada
+    FROM Tareas t
+    LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id
+    WHERE t.UsuarioId = @UsuarioId AND t.NotaVinculadaId = @NotaVinculadaId
+    ORDER BY t.EstaCompletada ASC, t.Prioridad ASC, t.FechaVencimiento ASC, t.Orden ASC;
 END;
 GO
 

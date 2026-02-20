@@ -15,4 +15,7 @@ public class Tarea
     
     public DateTime FechaCreacion { get; set; }
     public DateTime? FechaCompletada { get; set; }
+
+    /// <summary>Título de la nota vinculada (solo viene en consultas con JOIN).</summary>
+    public string? TituloNotaVinculada { get; set; }
 }

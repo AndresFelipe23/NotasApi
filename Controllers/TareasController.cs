@@ -18,6 +18,23 @@ public class TareasController : ControllerBase
         _tareaRepository = tareaRepository;
     }
 
+    [HttpGet]
+    public async Task<ActionResult> ObtenerTareas([FromQuery] Guid? notaVinculadaId)
+    {
+        if (!notaVinculadaId.HasValue || notaVinculadaId.Value == Guid.Empty)
+            return BadRequest(new { message = "Se requiere notaVinculadaId para filtrar por nota." });
+        try
+        {
+            var usuarioId = User.GetUsuarioId();
+            var tareas = await _tareaRepository.ObtenerPorNotaVinculadaAsync(usuarioId, notaVinculadaId.Value);
+            return Ok(tareas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener las tareas", error = ex.Message });
+        }
+    }
+
     [HttpGet("pendientes")]
     public async Task<ActionResult> ObtenerPendientes()
     {

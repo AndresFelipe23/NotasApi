@@ -89,7 +89,7 @@ BEGIN
 
     SELECT 
         t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, t.FechaVencimiento,
-        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
+        t.FechaCreacion,
         n.Titulo AS TituloNotaVinculada
     FROM Tareas t
     LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id
@@ -114,8 +114,8 @@ BEGIN
     SELECT 
         t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, 
         t.EstaCompletada, t.FechaVencimiento,
-        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
-        DATEADD(HOUR, -5, t.FechaCompletada) AS FechaCompletada,
+        t.FechaCreacion,
+        t.FechaCompletada,
         n.Titulo AS TituloNotaVinculada
     FROM Tareas t
     LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id
@@ -137,8 +137,8 @@ BEGIN
     SELECT 
         t.Id, t.Descripcion, t.NotaVinculadaId, t.Prioridad, t.Orden, t.EstaCompletada,
         t.FechaVencimiento,
-        DATEADD(HOUR, -5, t.FechaCreacion) AS FechaCreacion,
-        DATEADD(HOUR, -5, t.FechaCompletada) AS FechaCompletada,
+        t.FechaCreacion,
+        t.FechaCompletada,
         n.Titulo AS TituloNotaVinculada
     FROM Tareas t
     LEFT JOIN Notas n ON t.NotaVinculadaId = n.Id

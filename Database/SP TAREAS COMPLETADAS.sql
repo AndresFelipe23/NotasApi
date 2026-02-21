@@ -11,8 +11,8 @@ BEGIN
     SELECT 
         Id, Descripcion, NotaVinculadaId, Prioridad, Orden, 
         EstaCompletada, FechaVencimiento,
-        DATEADD(HOUR, -5, FechaCreacion) AS FechaCreacion,
-        DATEADD(HOUR, -5, FechaCompletada) AS FechaCompletada
+        FechaCreacion,
+        FechaCompletada
     FROM Tareas
     WHERE UsuarioId = @UsuarioId AND EstaCompletada = 1
     ORDER BY FechaCompletada DESC;

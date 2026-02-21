@@ -27,9 +27,9 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = ex.Message });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
 
@@ -45,9 +45,9 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
 
@@ -64,9 +64,9 @@ public class AuthController : ControllerBase
             }
             return Ok(new { message = "Sesión cerrada exitosamente" });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, new { message = "Error al cerrar sesión", error = ex.Message });
+            return StatusCode(500, new { message = "Error al cerrar sesión" });
         }
     }
 }

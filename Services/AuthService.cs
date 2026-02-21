@@ -38,9 +38,9 @@ public class AuthService : IAuthService
         if (usuario == null)
             throw new UnauthorizedAccessException("Credenciales inválidas");
 
-        // Verificar si el usuario está activo
+        // No revelar si la cuenta existe; mismo mensaje que credenciales incorrectas
         if (!usuario.EsActivo)
-            throw new UnauthorizedAccessException("Usuario inactivo");
+            throw new UnauthorizedAccessException("Credenciales inválidas");
 
         // Verificar contraseña con BCrypt
         if (!BCrypt.Net.BCrypt.Verify(request.Password, usuario.PasswordHash))

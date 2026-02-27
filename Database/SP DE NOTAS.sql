@@ -10,6 +10,7 @@ CREATE OR ALTER PROCEDURE usp_Notas_Crear
     @Titulo NVARCHAR(200),
     @Resumen NVARCHAR(300) = NULL,
     @Icono NVARCHAR(50) = NULL,
+    @ColorHex VARCHAR(7) = NULL,
     @ContenidoBloques NVARCHAR(MAX) = NULL, -- El JSON inicial (puede venir vac?o)
     @NuevoId UNIQUEIDENTIFIER OUTPUT
 AS
@@ -19,11 +20,11 @@ BEGIN
 
     INSERT INTO Notas (
         Id, UsuarioId, CarpetaId, Titulo, Resumen, 
-        Icono, ContenidoBloques
+        Icono, ColorHex, ContenidoBloques
     )
     VALUES (
         @NuevoId, @UsuarioId, @CarpetaId, @Titulo, @Resumen, 
-        @Icono, @ContenidoBloques
+        @Icono, @ColorHex, @ContenidoBloques
     );
 END;
 GO
@@ -38,6 +39,7 @@ CREATE OR ALTER PROCEDURE usp_Notas_Actualizar
     @Titulo NVARCHAR(200),
     @Resumen NVARCHAR(300) = NULL,
     @Icono NVARCHAR(50) = NULL,
+    @ColorHex VARCHAR(7) = NULL,
     @ImagenPortadaUrl NVARCHAR(500) = NULL,
     @ContenidoBloques NVARCHAR(MAX)
 AS
@@ -49,6 +51,7 @@ BEGIN
         Titulo = @Titulo,
         Resumen = @Resumen,
         Icono = @Icono,
+        ColorHex = @ColorHex,
         ImagenPortadaUrl = @ImagenPortadaUrl,
         ContenidoBloques = @ContenidoBloques,
         FechaActualizacion = GETUTCDATE()
@@ -69,7 +72,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        Id, CarpetaId, Titulo, Resumen, Icono, ImagenPortadaUrl, 
+        Id, CarpetaId, Titulo, Resumen, Icono, ColorHex, ImagenPortadaUrl, 
         ContenidoBloques, EsFavorita, EsArchivada, EsPublica, 
         FechaCreacion, FechaActualizacion
     FROM Notas
@@ -89,7 +92,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        Id, Titulo, Resumen, Icono, ImagenPortadaUrl, 
+        Id, Titulo, Resumen, Icono, ColorHex, ImagenPortadaUrl, 
         EsFavorita, EsPublica, FechaActualizacion
     FROM Notas
     WHERE UsuarioId = @UsuarioId 
@@ -110,7 +113,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        Id, CarpetaId, Titulo, Resumen, Icono, ImagenPortadaUrl, 
+        Id, CarpetaId, Titulo, Resumen, Icono, ColorHex, ImagenPortadaUrl, 
         EsFavorita, EsPublica, FechaActualizacion
     FROM Notas
     WHERE UsuarioId = @UsuarioId 
@@ -213,6 +216,7 @@ GO
 
 -- ============================================================================
 -- 10. ELIMINAR NOTA (Borrado permanente)
+-- Desvincula las tareas que apuntan a esta nota para evitar violación de FK.
 -- ============================================================================
 CREATE OR ALTER PROCEDURE usp_Notas_Eliminar
     @Id UNIQUEIDENTIFIER,
@@ -220,6 +224,11 @@ CREATE OR ALTER PROCEDURE usp_Notas_Eliminar
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    -- Quitar la vinculación de tareas que referencian esta nota (evita FK constraint)
+    UPDATE Tareas
+    SET NotaVinculadaId = NULL
+    WHERE NotaVinculadaId = @Id AND UsuarioId = @UsuarioId;
 
     DELETE FROM Notas
     WHERE Id = @Id AND UsuarioId = @UsuarioId;

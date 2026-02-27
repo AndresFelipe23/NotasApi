@@ -103,6 +103,7 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<CarpetaRepository>(); // Implementación base
 builder.Services.AddScoped<NotaRepository>(); // Implementación base
 builder.Services.AddScoped<NotaRapidaRepository>(); // Implementación base
+builder.Services.AddScoped<PizarraRepository>(); // Implementación base
 builder.Services.AddScoped<TareaRepository>(); // Implementación base
 
 // Registrar Repositorios con Caché (Decoradores)
@@ -119,6 +120,7 @@ builder.Services.AddScoped<IEtiquetaRepository, EtiquetaRepository>();
 
 // Notas rápidas sin caché para máxima velocidad (se puede habilitar Redis más adelante)
 builder.Services.AddScoped<INotaRapidaRepository, NotaRapidaRepository>();
+builder.Services.AddScoped<IPizarraRepository, PizarraRepository>();
 
 builder.Services.AddScoped<IIntegracionGoogleRepository, IntegracionGoogleRepository>();
 builder.Services.AddScoped<IGoogleTasksService, GoogleTasksService>();

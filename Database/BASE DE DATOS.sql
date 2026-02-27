@@ -57,6 +57,7 @@ CREATE TABLE Notas (
     Titulo NVARCHAR(200) NOT NULL,
     Resumen NVARCHAR(300) NULL, 
     Icono NVARCHAR(50) NULL,
+    ColorHex VARCHAR(7) NULL,
     ImagenPortadaUrl NVARCHAR(500) NULL, 
     ContenidoBloques NVARCHAR(MAX) NULL, 
     EsFavorita BIT DEFAULT 0,
